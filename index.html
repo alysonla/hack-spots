@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<title>Rap City</title>
-		<script type="text/javascript" src="js/ICanHaz.js"></script> 
+		<script type="text/javascript" src="js/ICanHaz.js"></script>
 		<script type="text/javascript" src='http://api.tiles.mapbox.com/mapbox.js/v1.0.0/mapbox.js'></script>
 		<script type="text/javascript" src='js/jquery.js '></script>
 		<script type="text/javascript" src='js/tabletop.js'></script>
@@ -12,9 +12,9 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<link href='http://api.tiles.mapbox.com/mapbox.js/v1.0.0/mapbox.css' rel='stylesheet' />
 		<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic'>
-		<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Amatic+SC:400,700'>		
-		<link media="screen" rel="stylesheet" type="text/css" href="css/style.css"> 
-		<link media="screen" rel="stylesheet" type="text/css" href="css/site.css"> 
+		<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Amatic+SC:400,700'>
+		<link media="screen" rel="stylesheet" type="text/css" href="css/style.css">
+		<link media="screen" rel="stylesheet" type="text/css" href="css/site.css">
 		<link rel="stylesheet" href="css/MarkerCluster.css" />
 		<link rel="stylesheet" href="css/MarkerCluster.Default.css" />
 	</head>
@@ -44,7 +44,7 @@
 			<div id="hackSpotsTable"></div>
 		</div>
 		<div id="info" class="container">
-			
+
 	</div><!-- end wrapper -->
 
 	<script id="hackSpotsTable" type="text/html">
@@ -52,7 +52,7 @@
 		<tr><th class="tHeader">Name</th><th class="tHeader">City</th><th class="tHeader">State</th></tr>
 		  {{#rows}}
 		  	<tr id="{{rowNumber}}" class="spotRow"><td>{{name}}</td><td>{{city}}</td><td>{{state}}</td></tr>
-		  	<tr class="hideRow"><td>wifi: {{wifipassword}}</td></tr>
+		  	<tr class="hideRow"><td>Lyric: {{Lyric}}</td></tr>
 		  {{/rows}}
 	  </table>
 	</script>
@@ -78,17 +78,20 @@
 			<h2>{{name}}</h2>
 			<p class="colorText">{{city}}, {{state}}</p>
 			<ul>
-		  	//<li><span class="category">Lyric:</span> {{Lyric}}</li>
+		  	<li><span class="category">Lyric:</span> {{Lyric}}</li>
 			</ul>
 	  	{{/rows}}
 	</script>
 
+<!-- 	Where the spreadsheet key goes... -->
+
+
 	<script type="text/javascript">
 	  document.addEventListener('DOMContentLoaded', function() {
 	  	var gData
-	  	var URL = "0AuFLrZrz3A8IdG9iaWFQSmt0MGJoM05NanRhM1pFMEE"
-			Tabletop.init( { key: URL, callback: showInfo, simpleSheet: true } ) 
-		}) 
+	  	var URL = "1PJv9nP88A10XOvxTvmzjBsiqLvYQinJxCsERSipITZY"
+			Tabletop.init( { key: URL, callback: showInfo, simpleSheet: true } )
+		})
 
 		// so long, so messy
 
@@ -125,7 +128,7 @@
 	  		var startWithLatestRow = data.reverse()
 	  		startWithLatestRow.forEach(function(row){
 	  			if (!row.lat || !row.long || !row.name || !row.address || !row.city || !row.state ) return
-	  			else latestCompleteSpot.push(row) 
+	  			else latestCompleteSpot.push(row)
 	  		})
 	  		return latestCompleteSpot[0]
 	  	}
@@ -160,7 +163,7 @@
 			// interactions that we want
 			function addPopups(map, markerLayer) {
 			  markerLayer.on('click', function(e) {
-			  // clear any selected rows	
+			  // clear any selected rows
 				$('.spotRow').removeClass("selectedRow")
 				// get row number of selected marker
 			  var rowNumber = e.layer.feature.opts.rowNumber.toString()
@@ -176,7 +179,7 @@
 			  // take those details and re-write the selected spot section
 				var selectedSpot = ich.selectedSpot({
 				  rows: dataElement
-			 	}) 
+			 	})
 			  $('#latestSpot').css("display", "none")
 			  $('#selectedSpot').html(selectedSpot).css("display", "inline")
 			  var feature = e.layer.feature

@@ -22,21 +22,13 @@
       return -1;
     };
   }
-  
-  /*
-    Initialize with Tabletop.init( { key: '0AjAPaAU9MeLFdHUxTlJiVVRYNGRJQnRmSnQwTlpoUXc' } )
-      OR!
-    Initialize with Tabletop.init( { key: 'https://docs.google.com/spreadsheet/pub?hl=en_US&hl=en_US&key=0AjAPaAU9MeLFdHUxTlJiVVRYNGRJQnRmSnQwTlpoUXc&output=html&widget=true' } )
-      OR!
-    Initialize with Tabletop.init('0AjAPaAU9MeLFdHUxTlJiVVRYNGRJQnRmSnQwTlpoUXc')
-  */
 
   var Tabletop = function(options) {
     // Make sure Tabletop is being used as a constructor no matter what.
     if(!this || !(this instanceof Tabletop)) {
       return new Tabletop(options);
     }
-    
+
     if(typeof(options) === 'string') {
       options = { key : options };
     }
@@ -54,22 +46,22 @@
     this.singleton = !!options.singleton;
     this.simple_url = !!options.simple_url;
     this.callbackContext = options.callbackContext;
-    
+
     if(typeof(options.proxy) !== 'undefined') {
       this.endpoint = options.proxy;
       this.simple_url = true;
       this.singleton = true;
     }
-    
+
     this.parameterize = options.parameterize || false;
-    
+
     if(this.singleton) {
       if(typeof(Tabletop.singleton) !== 'undefined') {
         this.log("WARNING! Tabletop singleton already defined");
       }
       Tabletop.singleton = this;
     }
-    
+
     /* Be friendly about what you accept */
     if(/key=/.test(this.key)) {
       this.log("You passed a key as a URL! Attempting to parse.");
@@ -93,7 +85,7 @@
     } else {
       this.base_json_path += 'json-in-script';
     }
-    
+
     if(!this.wait) {
       this.fetch();
     }
@@ -119,10 +111,10 @@
       }
       this.requestData(this.base_json_path, this.loadSheets);
     },
-    
+
     /*
       This will call the environment appropriate request method.
-      
+
       In browser it will use JSON-P, in node it will use request()
     */
     requestData: function(path, callback) {
@@ -132,7 +124,7 @@
         this.injectScript(path, callback);
       }
     },
-    
+
     /*
       Insert the URL into the page as a script tag. Once it's loaded the spreadsheet data
       it triggers the callback. This helps you avoid cross-domain errors
@@ -143,7 +135,7 @@
     injectScript: function(path, callback) {
       var script = document.createElement('script');
       var callbackName;
-      
+
       if(this.singleton) {
         if(callback === this.loadSheets) {
           callbackName = 'Tabletop.singleton.loadSheets';
@@ -163,9 +155,9 @@
         };
         callbackName = 'Tabletop.callbacks.' + callbackName;
       }
-      
+
       var url = path + "&callback=" + callbackName;
-      
+
       if(this.simple_url) {
         // We've gone down a rabbit hole of passing injectScript the path, so let's
         // just pull the sheet_id out of the path like the least efficient worker bees
@@ -177,15 +169,15 @@
       } else {
         script.src = this.endpoint + url;
       }
-      
+
       if (this.parameterize) {
         script.src = this.parameterize + encodeURIComponent(script.src);
       }
-      
+
       document.getElementsByTagName('script')[0].parentNode.appendChild(script);
     },
-    
-    /* 
+
+    /*
       This will only run if tabletop is being run in node.js
     */
     serverSideFetch: function(path, callback) {
@@ -198,7 +190,7 @@
       });
     },
 
-    /* 
+    /*
       Is this a sheet you want to pull?
       If { wanted: ["Sheet1"] } has been specified, only Sheet1 is imported
       Pulls all sheets if none are specified
@@ -210,7 +202,7 @@
         return this.wanted.indexOf(sheetName) !== -1;
       }
     },
-    
+
     /*
       What gets send to the callback
       if simpleSheet === true, then don't return an array of Tabletop.this.models,
@@ -240,7 +232,7 @@
         this.wanted.push(sheet);
       }
     },
-    
+
     /*
       Load all worksheets of the spreadsheet, turning each into a Tabletop Model.
       Need to use injectScript because the worksheet view that you're working from
@@ -258,13 +250,17 @@
         this.foundSheetNames.push(data.feed.entry[i].title.$t);
         // Only pull in desired sheets to reduce loading
         if( this.isWanted(data.feed.entry[i].content.$t) ) {
-          var sheet_id = data.feed.entry[i].link[3].href.substr( data.feed.entry[i].link[3].href.length - 3, 3);
-          var json_path = "/feeds/list/" + this.key + "/" + sheet_id + "/public/values?sq=" + this.query + '&alt='
+          var linkIdx = data.feed.entry[i].link.length-1;
+          var sheet_id = data.feed.entry[i].link[linkIdx].href.substr( data.feed.entry[i].link[linkIdx].href.length - 3, 3);
+          var json_path = "/feeds/list/" + this.key + "/" + sheet_id + "/public/values?alt="
           if (inNodeJS) {
             json_path += 'json';
           } else {
             json_path += 'json-in-script';
           }
+          if(this.query) {
+             json_path += "&sq=" + this.query;
+           }
           toLoad.push(json_path);
         }
       }
@@ -299,7 +295,7 @@
       Used as a callback for the list-based JSON
     */
     loadSheet: function(data) {
-      var model = new Tabletop.Model( { data: data, 
+      var model = new Tabletop.Model( { data: data,
                                     parseNumbers: this.parseNumbers,
                                     postProcess: this.postProcess,
                                     tabletop: this } );
@@ -351,7 +347,7 @@
       this.elements = [];
       return;
     }
-    
+
     for(var key in options.data.feed.entry[0]){
       if(/^gsx/.test(key))
         this.column_names.push( key.replace("gsx$","") );
